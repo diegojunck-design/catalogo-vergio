@@ -1,0 +1,49 @@
+---
+const ENDPOINT = "https://SEU-APP.../api/public-products"; // ajuste aqui
+const res = await fetch(ENDPOINT);
+const data = await res.json();
+
+// sanidade: só itens ativos e com estoque/imagem
+const items = (Array.isArray(data) ? data : data.data || [])
+  .filter(p => p?.status === 'ativo' && (p?.quantidade_estoque ?? 0) > 0 && p?.imagem_url);
+const updatedAt = new Date().toLocaleDateString('pt-BR');
+function waLink(p) {
+  const msg = encodeURIComponent(`Olá! Tenho interesse no código ${p.codigo} - ${p.nome}. Ainda está disponível?`);
+  return `https://wa.me/5547988175093?text=${msg}`; // ajuste seu número
+}
+---
+
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <title>Catálogo Vergio</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>VERGIO JOALHERIA — Catálogo Exclusivo</h1>
+      <small>Atualizado em {updatedAt}</small>
+    </header>
+
+    <main class="grid">
+      {items.map(p => (
+        <a href={`/${p.codigo}/`} class="card">
+          <div class="imgwrap">
+            {p.imagem_url
+              ? <img src={p.imagem_url} alt={p.nome} loading="lazy" />
+              : <span>Imagem em atualização</span>}
+          </div>
+          <div class="title">{p.nome}</div>
+          <div class="meta">Código: {p.codigo}</div>
+          <div class="price">R$ {Number(p.preco_venda).toFixed(2)}</div>
+          <div><span class="btn">Ver detalhes</span></div>
+        </a>
+      ))}
+    </main>
+
+    <footer class="footer">
+      <small>Contato: WhatsApp (47) 98817-5093 • Instagram @vergiojoias</small>
+    </footer>
+  </body>
+</html>
