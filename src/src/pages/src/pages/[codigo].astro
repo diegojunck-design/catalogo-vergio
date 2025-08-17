@@ -1,0 +1,41 @@
+---
+import "../styles.css";
+
+const ENDPOINT = "https://SEU-APP.../api/public-products"; // mesmo endpoint
+const res = await fetch(ENDPOINT);
+const data = await res.json();
+const items = (Array.isArray(data) ? data : data.data || []);
+const { codigo } = Astro.params;
+const p = items.find(i => String(i.codigo) === String(codigo));
+
+if (!p) {
+  throw Astro.redirect('/');
+}
+
+function waLink(item) {
+  const msg = encodeURIComponent(`Olá! Tenho interesse no código ${item.codigo} - ${item.nome}. Ainda está disponível?`);
+  return `https://wa.me/5547988175093?text=${msg}`; // ajuste seu número
+}
+---
+
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <title>{p.nome} — Vergio</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
+  <body>
+    <a class="back" href="/">← Voltar</a>
+    <main class="product">
+      <div class="card">
+        <div class="imgwrap">
+          {p.imagem_url ? <img src={p.imagem_url} alt={p.nome} /> : <span>Imagem em atualização</span>}
+        </div>
+        <h2>{p.nome}</h2>
+        <div class="meta">Código: {p.codigo}</div>
+        <div class="price">R$ {Number(p.preco_venda).toFixed(2)}</div>
+        <a class="btn" href={waLink(p)} target="_blank" rel="noopener">Comprar no WhatsApp</a>
+      </div>
+    </main>
+  </body>
+</html>
